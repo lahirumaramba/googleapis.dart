@@ -49,11 +49,16 @@ extension AuthClientSigningExtension on AuthClient {
   /// The result is cached for the lifetime of the Dart process.
   ///
   /// If [refresh] is `true`, the cache is cleared and the value is re-computed.
-  Future<String> getServiceAccountEmail({bool refresh = false}) async =>
-      await serviceAccountEmailFromMetadataServer(
-        client: this,
-        refresh: refresh,
-      );
+  Future<String> getServiceAccountEmail({bool refresh = false}) async {
+    if (this is ImpersonatedAuthClient) {
+      return (this as ImpersonatedAuthClient).targetServiceAccount;
+    }
+
+    return await serviceAccountEmailFromMetadataServer(
+      client: this,
+      refresh: refresh,
+    );
+  }
 
   /// Signs some bytes using the credentials from this auth client.
   ///
